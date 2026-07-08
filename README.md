@@ -18,6 +18,16 @@ npm install
 npm run dev
 ```
 
+## CLI usage
+
+Transcribe a file from the terminal (same model, runs locally in Node):
+
+```bash
+npm run transcribe -- path/to/audio.mp3
+```
+
+The transcript prints to stdout, so it can be piped into other tools — including AI assistants like Claude Code, which can run this command on any audio file you point it at.
+
 ## Deployment
 
 Pushing to `main` triggers the GitHub Actions workflow (`.github/workflows/deploy.yml`), which builds the site and deploys it to GitHub Pages.
