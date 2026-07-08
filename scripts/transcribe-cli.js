@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 /**
- * CLI transcription: node scripts/transcribe-cli.js <audio-file>
+ * CLI transcription: node scripts/transcribe-cli.js <audio-file> [language]
+ * language defaults to "english"; use Whisper names like "spanish", "french".
  * Prints the transcript to stdout (progress goes to stderr),
  * so it can be piped or consumed by other tools (e.g. Claude Code).
  */
@@ -9,8 +10,9 @@ import { pipeline } from '@huggingface/transformers'
 import decodeAudio from 'audio-decode'
 
 const file = process.argv[2]
+const language = process.argv[3] || 'english'
 if (!file) {
-  console.error('Usage: node scripts/transcribe-cli.js <audio-file.wav|mp3|flac|ogg>')
+  console.error('Usage: node scripts/transcribe-cli.js <audio-file.wav|mp3|flac|ogg> [language]')
   process.exit(1)
 }
 
@@ -50,9 +52,9 @@ console.error(`Decoded ${file}: ${(length / sampleRate).toFixed(1)}s @ ${sampleR
 
 const transcriber = await pipeline(
   'automatic-speech-recognition',
-  'onnx-community/whisper-tiny.en',
+  'onnx-community/whisper-base', // multilingual: auto-detects Spanish, English, etc.
   { progress_callback: (e) => { if (e.status === 'ready') console.error('Model ready.') } },
 )
 
-const output = await transcriber(audio, { chunk_length_s: 30, stride_length_s: 5 })
+const output = await transcriber(audio, { language, task: 'transcribe', chunk_length_s: 30, stride_length_s: 5 })
 console.log(output.text.trim())

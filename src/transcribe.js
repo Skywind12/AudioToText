@@ -10,7 +10,7 @@ function getTranscriber(onProgress) {
   if (!transcriberPromise) {
     transcriberPromise = pipeline(
       'automatic-speech-recognition',
-      'onnx-community/whisper-tiny.en',
+      'onnx-community/whisper-base', // multilingual: auto-detects Spanish, English, etc.
       { progress_callback: onProgress },
     ).catch((err) => {
       transcriberPromise = null // allow retry on failure
@@ -49,14 +49,17 @@ async function decodeToMono16k(file) {
 /**
  * Transcribe an audio File. Returns the transcript text.
  * onProgress is forwarded to the model-download progress callback.
+ * language is a Whisper language name (e.g. 'english', 'spanish').
  */
-export async function transcribe(file, onProgress) {
+export async function transcribe(file, onProgress, language = 'english') {
   const [transcriber, audio] = await Promise.all([
     getTranscriber(onProgress),
     decodeToMono16k(file),
   ])
   if (audio.length === 0) throw new Error('Audio file appears to be empty.')
   const output = await transcriber(audio, {
+    language,
+    task: 'transcribe',
     // Enable chunking so long files work
     chunk_length_s: 30,
     stride_length_s: 5,

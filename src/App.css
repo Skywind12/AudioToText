@@ -59,6 +59,23 @@ h1 { font-size: 2rem; }
 .dropzone.has-file { border-style: solid; }
 .hint { color: var(--muted); font-size: 0.875rem; }
 
+.lang-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+.lang-row select {
+  flex: 1;
+  background: var(--card);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.5rem 0.6rem;
+  font: inherit;
+}
+
 .go {
   background: var(--accent);
   color: #fff;

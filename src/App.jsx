@@ -3,6 +3,23 @@ import { transcribe } from './transcribe.js'
 
 const ACCEPTED = ['.wav', '.mp3', '.m4a', '.ogg', '.flac', '.webm']
 
+// Whisper language names (value) with display labels
+const LANGUAGES = [
+  ['english', 'English'],
+  ['spanish', 'Español (Spanish)'],
+  ['french', 'Français (French)'],
+  ['german', 'Deutsch (German)'],
+  ['portuguese', 'Português (Portuguese)'],
+  ['italian', 'Italiano (Italian)'],
+  ['dutch', 'Nederlands (Dutch)'],
+  ['russian', 'Русский (Russian)'],
+  ['chinese', '中文 (Chinese)'],
+  ['japanese', '日本語 (Japanese)'],
+  ['korean', '한국어 (Korean)'],
+  ['arabic', 'العربية (Arabic)'],
+  ['hindi', 'हिन्दी (Hindi)'],
+]
+
 export default function App() {
   const [file, setFile] = useState(null)
   const [status, setStatus] = useState('idle') // idle | loading-model | transcribing | done | error
@@ -11,6 +28,7 @@ export default function App() {
   const [error, setError] = useState('')
   const [copied, setCopied] = useState(false)
   const [dragOver, setDragOver] = useState(false)
+  const [language, setLanguage] = useState('english')
   const inputRef = useRef(null)
 
   const pickFile = (f) => {
@@ -43,7 +61,7 @@ export default function App() {
     setTranscript('')
     setCopied(false)
     try {
-      const text = await transcribe(file, onProgress)
+      const text = await transcribe(file, onProgress, language)
       setTranscript(text || '(No speech detected)')
       setStatus('done')
     } catch (err) {
@@ -67,8 +85,8 @@ export default function App() {
     <main className="app">
       <h1>Audio → Text</h1>
       <p className="tagline">
-        Transcribe WAV / MP3 files right in your browser. Nothing is uploaded —
-        the AI model runs locally on your device.
+        Transcribe WAV / MP3 files right in your browser — English, Spanish, and
+        more. Nothing is uploaded; the AI model runs locally on your device.
       </p>
 
       <div
@@ -102,6 +120,15 @@ export default function App() {
         )}
       </div>
 
+      <label className="lang-row">
+        Audio language:
+        <select value={language} onChange={(e) => setLanguage(e.target.value)} disabled={busy}>
+          {LANGUAGES.map(([value, label]) => (
+            <option key={value} value={value}>{label}</option>
+          ))}
+        </select>
+      </label>
+
       <button className="go" onClick={run} disabled={!file || busy}>
         {status === 'loading-model' && 'Loading model…'}
         {status === 'transcribing' && 'Transcribing…'}
@@ -110,7 +137,7 @@ export default function App() {
 
       {status === 'loading-model' && (
         <p className="note">
-          First run downloads the speech model (~40 MB), then it's cached.
+          First run downloads the speech model (~80 MB), then it's cached.
           {progress && ` ${progress.pct}%`}
         </p>
       )}
